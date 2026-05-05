@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Calcolatore costi custodie obiettivi - TPU FDM</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 24px;
+    background: #f4f6f9;
+    color: #1f2937;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    color: #0f172a;
+  }
+  .subtitle {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+  h2 {
+    margin: 0 0 16px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    color: #475569;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.15s;
+  }
+  input[type="number"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  }
+  .field { margin-bottom: 14px; }
+  .hint {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+  .results {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .results h2 {
+    color: #bfdbfe;
+    border-color: rgba(255,255,255,0.15);
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-label {
+    font-size: 13px;
+    color: #cbd5e1;
+  }
+  .result-value {
+    font-size: 16px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-cost {
+    margin-top: 16px;
+    padding: 14px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    text-align: center;
+  }
+  .result-cost .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #bfdbfe;
+  }
+  .result-cost .value {
+    font-size: 32px;
+    font-weight: 700;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  svg { display: block; margin: 0 auto; }
+  .legend {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 8px;
+    text-align: center;
+  }
+  details {
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  details summary {
+    cursor: pointer;
+    color: #3b82f6;
+    font-weight: 500;
+  }
+  details pre {
+    background: #f1f5f9;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    overflow-x: auto;
+    color: #334155;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div>
+    <h1>Calcolatore costi custodie obiettivi (TPU FDM)</h1>
+    <p class="subtitle">Stima volume di filamento, peso e costo per custodia + tappo stampati in TPU.</p>
+  </div>
+  <div></div>
+
+  <!-- INPUT OBIETTIVO -->
+  <div class="card">
+    <h2>Dati obiettivo</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label for="dObb">Diametro massimo obiettivo (mm)</label>
+        <input type="number" id="dObb" value="80" step="0.1" min="1">
+      </div>
+      <div class="field">
+        <label for="lObb">Lunghezza FT obiettivo (mm)</label>
+        <input type="number" id="lObb" value="120" step="0.1" min="1">
+      </div>
+    </div>
+  </div>
+
+  <!-- PARAMETRI STAMPA -->
+  <div class="card">
+    <h2>Parametri custodia</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label for="sParete">Spessore pareti (mm)</label>
+        <input type="number" id="sParete" value="2" step="0.1" min="0.4">
+      </div>
+      <div class="field">
+        <label for="sFondo">Spessore fondo (mm)</label>
+        <input type="number" id="sFondo" value="2" step="0.1" min="0.4">
+      </div>
+      <div class="field">
+        <label for="tolleranza">Tolleranza interna (mm)</label>
+        <input type="number" id="tolleranza" value="0.5" step="0.1" min="0">
+        <div class="hint">gioco tra obiettivo e parete interna</div>
+      </div>
+      <div class="field">
+        <label for="hTappo">Altezza tot. tappo (mm)</label>
+        <input type="number" id="hTappo" value="20" step="0.5" min="1">
+      </div>
+      <div class="field">
+        <label for="sSup">Spessore parete sup. tappo (mm)</label>
+        <input type="number" id="sSup" value="5" step="0.5" min="0.4">
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGRAMMA -->
+  <div class="card">
+    <h2>Schema in sezione</h2>
+    <svg id="diagram" viewBox="0 0 360 320" width="100%" style="max-width: 360px;">
+      <!-- generato dinamicamente -->
+    </svg>
+    <div class="legend">Sezione assialsimmetrica (proporzioni dinamiche)</div>
+  </div>
+
+  <!-- PARAMETRI MATERIALE -->
+  <div class="card">
+    <h2>Materiale e costo</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label for="densita">Densità TPU (g/cm³)</label>
+        <input type="number" id="densita" value="1.21" step="0.01" min="0.5">
+      </div>
+      <div class="field">
+        <label for="dFil">Diametro filamento (mm)</label>
+        <input type="number" id="dFil" value="1.75" step="0.05" min="0.5">
+      </div>
+      <div class="field">
+        <label for="costoKg">Costo filamento (€/kg)</label>
+        <input type="number" id="costoKg" value="30" step="0.5" min="0">
+      </div>
+      <div class="field">
+        <label for="spreco">Spreco di stampa (%)</label>
+        <input type="number" id="spreco" value="5" step="1" min="0" max="50">
+        <div class="hint">skirt, purge, supporti</div>
+      </div>
+      <div class="field">
+        <label for="nPezzi">Numero set (custodia + tappo)</label>
+        <input type="number" id="nPezzi" value="1" step="1" min="1">
+      </div>
+      <div class="field">
+        <label for="infill">Infill pareti (%)</label>
+        <input type="number" id="infill" value="15" step="1" min="1" max="100">
+        <div class="hint">applicato al volume delle pareti laterali (fondo/tetto sempre 100%)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RISULTATI -->
+  <div class="card results" style="grid-column: 1 / -1;">
+    <h2>Risultato simulazione</h2>
+    <div class="grid-2" style="gap: 24px;">
+      <div>
+        <div class="result-row"><span class="result-label">Diametro esterno</span><span class="result-value" id="rDExt">— mm</span></div>
+        <div class="result-row"><span class="result-label">Altezza custodia</span><span class="result-value" id="rHCorpo">— mm</span></div>
+        <div class="result-row"><span class="result-label">Volume custodia</span><span class="result-value" id="rVCorpo">— cm³</span></div>
+        <div class="result-row"><span class="result-label">Volume tappo</span><span class="result-value" id="rVTappo">— cm³</span></div>
+        <div class="result-row"><span class="result-label">Volume totale (1 set)</span><span class="result-value" id="rVTot">— cm³</span></div>
+      </div>
+      <div>
+        <div class="result-row"><span class="result-label">Massa totale (con spreco)</span><span class="result-value" id="rMassa">— g</span></div>
+        <div class="result-row"><span class="result-label">Lunghezza filamento</span><span class="result-value" id="rLunghezza">— m</span></div>
+        <div class="result-row"><span class="result-label">Costo per 1 set</span><span class="result-value" id="rCostoUno">— €</span></div>
+        <div class="result-row"><span class="result-label">N. set</span><span class="result-value" id="rNSet">—</span></div>
+      </div>
+    </div>
+    <div class="result-cost">
+      <div class="label">Costo totale</div>
+      <div class="value" id="rCostoTot">— €</div>
+    </div>
+
+    <details>
+      <summary>Vedi formule e dettagli</summary>
+      <pre id="formule"></pre>
+    </details>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const fmt = (n, d = 2) => n.toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+  function calcola() {
+    const dObb = parseFloat($('dObb').value) || 0;
+    const lObb = parseFloat($('lObb').value) || 0;
+    const sParete = parseFloat($('sParete').value) || 0;
+    const sFondo = parseFloat($('sFondo').value) || 0;
+    const tolleranza = parseFloat($('tolleranza').value) || 0;
+    const hTappo = parseFloat($('hTappo').value) || 0;
+    const sSup = parseFloat($('sSup').value) || 0;
+    const densita = parseFloat($('densita').value) || 1.21;
+    const dFil = parseFloat($('dFil').value) || 1.75;
+    const costoKg = parseFloat($('costoKg').value) || 0;
+    const spreco = parseFloat($('spreco').value) || 0;
+    const nPezzi = parseInt($('nPezzi').value) || 1;
+    const infill = parseFloat($('infill').value) || 100;
+
+    // Geometria (mm)
+    const rInt = dObb / 2 + tolleranza;
+    const rExt = rInt + sParete;
+    const dExt = rExt * 2;
+    const hCorpo = lObb + sFondo;
+    const hParCappello = Math.max(0, hTappo - sSup);
+
+    // Infill applicato direttamente al volume delle pareti laterali
+    const wallFill = infill / 100;
+
+    // Volumi (mm³)
+    const PI = Math.PI;
+    const vFondo = PI * rExt * rExt * sFondo;                              // sempre solido
+    const vPareteGeom = PI * (rExt * rExt - rInt * rInt) * lObb;
+    const vParete = vPareteGeom * wallFill;                                // applica infill
+    const vCorpo = vFondo + vParete;
+
+    const vSup = PI * rExt * rExt * sSup;                                  // sempre solido
+    const vParTappoGeom = PI * (rExt * rExt - rInt * rInt) * hParCappello;
+    const vParTappo = vParTappoGeom * wallFill;                            // applica infill
+    const vTappo = vSup + vParTappo;
+
+    const vTot = vCorpo + vTappo;        // mm³
+    const vTot_cm3 = vTot / 1000;         // cm³
+
+    // Massa con spreco
+    const massa = vTot_cm3 * densita * (1 + spreco / 100); // g
+
+    // Lunghezza filamento
+    const aFil = PI * (dFil / 2) ** 2;    // mm²
+    const lunghezza_mm = vTot * (1 + spreco / 100) / aFil;
+    const lunghezza_m = lunghezza_mm / 1000;
+
+    // Costi
+    const costoUnit = (massa / 1000) * costoKg; // €
+    const costoTot = costoUnit * nPezzi;
+
+    // Output
+    $('rDExt').textContent = fmt(dExt, 1) + ' mm';
+    $('rHCorpo').textContent = fmt(hCorpo, 1) + ' mm';
+    $('rVCorpo').textContent = fmt(vCorpo / 1000, 2) + ' cm³';
+    $('rVTappo').textContent = fmt(vTappo / 1000, 2) + ' cm³';
+    $('rVTot').textContent = fmt(vTot_cm3, 2) + ' cm³';
+    $('rMassa').textContent = fmt(massa, 1) + ' g';
+    $('rLunghezza').textContent = fmt(lunghezza_m, 2) + ' m';
+    $('rCostoUno').textContent = fmt(costoUnit, 2) + ' €';
+    $('rNSet').textContent = nPezzi;
+    $('rCostoTot').textContent = fmt(costoTot, 2) + ' €';
+
+    $('formule').textContent =
+`r_int = D_obb/2 + tolleranza  = ${fmt(rInt,2)} mm
+r_ext = r_int + s_parete       = ${fmt(rExt,2)} mm
+H_corpo = L_obb + s_fondo      = ${fmt(hCorpo,2)} mm
+
+Infill pareti = ${infill}%  →  fattore = ${fmt(wallFill,3)}
+(applicato al volume delle pareti laterali; fondo e tetto sempre 100%)
+
+V_fondo   = π·r_ext²·s_fondo                            = ${fmt(vFondo,1)} mm³  (solido)
+V_parGeom = π·(r_ext²−r_int²)·L_obb                     = ${fmt(vPareteGeom,1)} mm³
+V_parete  = V_parGeom · ${fmt(wallFill,3)}              = ${fmt(vParete,1)} mm³
+V_corpo   = V_fondo + V_parete                          = ${fmt(vCorpo,1)} mm³
+
+V_sup        = π·r_ext²·s_sup                           = ${fmt(vSup,1)} mm³  (solido)
+V_parTapGeom = π·(r_ext²−r_int²)·${fmt(hParCappello,1)}        = ${fmt(vParTappoGeom,1)} mm³
+V_parTap     = V_parTapGeom · ${fmt(wallFill,3)}        = ${fmt(vParTappo,1)} mm³
+V_tappo      = V_sup + V_parTap                         = ${fmt(vTappo,1)} mm³
+
+V_totale (1 set)                       = ${fmt(vTot,1)} mm³ = ${fmt(vTot_cm3,2)} cm³
+Massa = V·ρ·(1+spreco)                 = ${fmt(massa,2)} g
+A_fil  = π·(d_fil/2)²                  = ${fmt(aFil,3)} mm²
+L_fil  = V/A_fil                       = ${fmt(lunghezza_m,2)} m
+Costo set = (massa/1000)·€/kg          = ${fmt(costoUnit,3)} €
+Costo tot = costo set · n_set          = ${fmt(costoTot,2)} €`;
+
+    disegna(rInt, rExt, lObb, sFondo, hTappo, sSup);
+  }
+
+  function disegna(rInt, rExt, lObb, sFondo, hTappo, sSup) {
+    const svg = $('diagram');
+    const W = 360, H = 320, pad = 30, gap = 20;
+
+    const totH = lObb + sFondo + hTappo + gap;
+    const totW = rExt * 2;
+    const scale = Math.min((W - 2 * pad) / totW, (H - 2 * pad) / totH);
+
+    const cx = W / 2;
+    const yTop = pad;
+
+    // tappo
+    const wExt = rExt * 2 * scale;
+    const wInt = rInt * 2 * scale;
+    const sParete_px = (rExt - rInt) * scale;
+    const hTap_px = hTappo * scale;
+    const sSup_px = sSup * scale;
+    const hParTap_px = (hTappo - sSup) * scale;
+
+    // corpo
+    const hCorpo_px = (lObb + sFondo) * scale;
+    const sFondo_px = sFondo * scale;
+    const lObb_px = lObb * scale;
+
+    const yTappoTop = yTop;
+    const yTappoBot = yTop + hTap_px;
+    const yCorpoTop = yTappoBot + gap;
+    const yCorpoBot = yCorpoTop + hCorpo_px;
+
+    // svg content
+    let s = '';
+    // tappo: rettangolo esterno + cavità interna sotto la parete superiore
+    s += `<rect x="${cx - wExt/2}" y="${yTappoTop}" width="${wExt}" height="${hTap_px}" fill="#bfdbfe" stroke="#1e40af" stroke-width="1.2"/>`;
+    s += `<rect x="${cx - wInt/2}" y="${yTappoTop + sSup_px}" width="${wInt}" height="${hParTap_px}" fill="#fff" stroke="#1e40af" stroke-width="0.8"/>`;
+    s += `<text x="${cx}" y="${yTappoTop - 6}" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">TAPPO</text>`;
+
+    // corpo
+    s += `<rect x="${cx - wExt/2}" y="${yCorpoTop}" width="${wExt}" height="${hCorpo_px}" fill="#bfdbfe" stroke="#1e40af" stroke-width="1.2"/>`;
+    s += `<rect x="${cx - wInt/2}" y="${yCorpoTop}" width="${wInt}" height="${lObb_px}" fill="#fff" stroke="#1e40af" stroke-width="0.8"/>`;
+    s += `<text x="${cx}" y="${yCorpoBot + 14}" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">CUSTODIA</text>`;
+
+    // quote diametro
+    s += `<line x1="${cx - wExt/2}" y1="${yCorpoBot + 24}" x2="${cx + wExt/2}" y2="${yCorpoBot + 24}" stroke="#64748b" stroke-width="0.8" marker-start="url(#a)" marker-end="url(#a)"/>`;
+    s += `<text x="${cx}" y="${yCorpoBot + 38}" text-anchor="middle" font-size="10" fill="#475569">Ø ${(rExt*2).toFixed(1)} mm</text>`;
+
+    // quote altezza corpo
+    s += `<line x1="${cx + wExt/2 + 8}" y1="${yCorpoTop}" x2="${cx + wExt/2 + 8}" y2="${yCorpoBot}" stroke="#64748b" stroke-width="0.8" marker-start="url(#a)" marker-end="url(#a)"/>`;
+    s += `<text x="${cx + wExt/2 + 12}" y="${(yCorpoTop + yCorpoBot)/2 + 3}" font-size="10" fill="#475569">${(lObb + sFondo).toFixed(0)} mm</text>`;
+
+    // quote altezza tappo
+    s += `<line x1="${cx + wExt/2 + 8}" y1="${yTappoTop}" x2="${cx + wExt/2 + 8}" y2="${yTappoBot}" stroke="#64748b" stroke-width="0.8" marker-start="url(#a)" marker-end="url(#a)"/>`;
+    s += `<text x="${cx + wExt/2 + 12}" y="${(yTappoTop + yTappoBot)/2 + 3}" font-size="10" fill="#475569">${hTappo} mm</text>`;
+
+    // marker
+    s = `<defs><marker id="a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs>` + s;
+
+    svg.innerHTML = s;
+  }
+
+  document.querySelectorAll('input').forEach(el => el.addEventListener('input', calcola));
+  calcola();
+</script>
+
+</body>
+</html>
